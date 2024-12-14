@@ -1,28 +1,33 @@
 
-import Footer from './Footer'
-import HeaderViewer from './HeaderViewer'
-import SectionPhotos from  './SectionPhotos'
+import Footer from './Footer';
+import HeaderViewer from './HeaderViewer';
+import SectionPhotos from './SectionPhotos';
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from 'react';
 import Swal from 'sweetalert2';
 
+// دالة للحصول على اسم الصنف الديناميكي بناءً على الفهرس
 function getCategoryClass(index) {
     const classIndex = (index % 10) + 1; 
     return `add${classIndex}`;
 }
-export default function HomeEditor ({ categories, setCategories, setCurrentCategory }) {
+
+export default function HomeEditor({ categories, setCategories, setCurrentCategory }) {
   const navigate = useNavigate();
 
+  // استرجاع الفئات المخزنة في localStorage عند تحميل الصفحة
   useEffect(() => {
     const storedCategories = JSON.parse(localStorage.getItem("categories")) || [];
     setCategories(storedCategories);
   }, []);
 
+  // التعامل مع النقر على فئة معينة
   function handleCategoryClick(category) {
     setCurrentCategory(category);
     localStorage.setItem("currentCategory", JSON.stringify(category));
   }
 
+  // دالة  تعديل الفئة
   function handleEditCategory(event, category, index) {
     event.stopPropagation();
     navigate('/addcategoryeditor', {
@@ -36,6 +41,7 @@ export default function HomeEditor ({ categories, setCategories, setCurrentCateg
     });
   }
 
+  //  دالة حذف الفئة
   function deleteCategory(event, index) {
     event.stopPropagation();
 
@@ -64,6 +70,7 @@ export default function HomeEditor ({ categories, setCategories, setCurrentCateg
     });
   }
 
+  // الحد من عدد الفئات المضافة
   function limitCategory(event) {
     if (categories.length >= 10) {
       event.preventDefault();
@@ -81,16 +88,21 @@ export default function HomeEditor ({ categories, setCategories, setCurrentCateg
   return (
     <>
       <HeaderViewer />
+      
       <SectionPhotos />
       <section className='mb-10'>
+        {/* زر إضافة فئة */}
         <div className="flex justify-center mt-10">
           <button onClick={(event) => limitCategory(event)} className="btn-add w-40 h-16 bg-header text-white text-3xl rounded-lg hover:opacity-90 transition-opacity">
              اضافة فئة
           </button>
         </div>
+
+        {/* عرض الفئات */}
         <div className="add-category mt-4 flex justify-between">
+          {/* عرض الفئات في الجهة اليمنى */}
           <div className="right-category mt-8" style={{ width: '35%' }}>
-            {categories.map((category,index) => (
+            {categories.map((category, index) => (
               index % 2 === 0 && (
                 <div key={index}
                      onClick={() => handleCategoryClick(category)}
@@ -108,6 +120,7 @@ export default function HomeEditor ({ categories, setCategories, setCurrentCateg
             ))}
           </div>
 
+        
           <div className="center-category grid grid-cols-1 justify-items-center mb-20">
             <div style={{ width: '70%' }} className="mt-20 mb-4">
               <h1 className="text-3xl text-center">تقرير نماذج التعلم الالكتروني الكامل عن بعد والمدمج 2024</h1>
@@ -117,8 +130,9 @@ export default function HomeEditor ({ categories, setCategories, setCurrentCateg
             </div>
           </div>
 
+          {/* عرض الفئات في الجهة اليسرى */}
           <div className="left-category mt-8" style={{ width: '35%', marginLeft: '-5%' }}>
-            {categories.map((category,index) => (
+            {categories.map((category, index) => (
               index % 2 !== 0 && (
                 <div key={index}
                      onClick={() => handleCategoryClick(category)}
@@ -137,7 +151,7 @@ export default function HomeEditor ({ categories, setCategories, setCurrentCateg
           </div>
         </div>
 
-{/* Mobile Version */}
+        {/* mobile version   */}
         <div className="add-category-mobile hidden mt-10 justify-between">
           <div className="text-center px-4 mb-20">
             <h1 className="text-3xl text-center">تقرير نماذج التعلم الالكتروني الكامل عن بعد والمدمج 2024</h1>
