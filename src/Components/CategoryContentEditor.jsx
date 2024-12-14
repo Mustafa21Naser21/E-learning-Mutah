@@ -193,22 +193,21 @@ export default function CategoryContentEditor({ currentCategory = { terms: [] },
                     </h2>
                     <div className="flex justify-between header-term">
                       <div className="icon-term text-white mt-2 mr-2">
-                        <i
-                          onClick={(event) => deleteTerm(event, rowIndex * 3 + index)}
-                          className="fa-solid fa-trash cursor-pointer ml-4"
-                        />
-                        <i
-                          onClick={(event) => handleEditTerm(event, term)}
-                          className="fa-solid fa-pen-to-square cursor-pointer"
-                        />
-                      </div>
-                      <div className="number-term w-8 h-8 py-2 mt-2 text-center text-white bg-black opacity-70">
-                        {rowIndex * 3 + index + 1}
-                      </div>
+                       <i
+                         onClick={(event) => deleteTerm(event, rowIndex * 3 + index)}
+                         className="fa-solid fa-trash cursor-pointer ml-4"
+                       />
+                       <i
+                         onClick={(event) => handleEditTerm(event, term)}
+                       className="fa-solid fa-pen-to-square cursor-pointer"
+                       />
                     </div>
-                  </>
-                )}
-
+                     <div className="number-term w-8 h-8 py-2 mt-2 text-center text-white bg-black opacity-70">
+                       {rowIndex * 3 + index + 1}
+                     </div>
+                   </div>
+                 </>
+               )}
                 <div
                   className="term-border"
                   style={{
