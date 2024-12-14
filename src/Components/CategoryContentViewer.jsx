@@ -1,4 +1,4 @@
-import HeaderViewer from './Header';
+import HeaderViewer from './HeaderViewer';
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from 'react';
 
@@ -16,7 +16,7 @@ export default function CategoryContentViewer({ currentCategory = { terms: [] },
  
    const [category, setCategory] = useState({ ...currentCategory, terms: currentCategory?.terms || [] });
  
-   //const { termTitle, termContent, termDescription } = location.state || {};
+   
    const { title, description } = location.state || {};
 
    
@@ -24,25 +24,14 @@ export default function CategoryContentViewer({ currentCategory = { terms: [] },
       // عند الضغط على الفئة يجب التأكد من أن البنود الخاصة بها موجودة
       setCategory(currentCategory);
     }, [currentCategory]);
-  
-/*
-   useEffect(() => {
-      const storedTerms = localStorage.getItem('categoryTerms');
-      if (storedTerms) {
-        const terms = JSON.parse(storedTerms);
-        setCategory({ ...currentCategory, terms });
-      }
-    }, [currentCategory]);
- */
+
     useEffect(() => {
       const storedCategory = JSON.parse(localStorage.getItem(title));  // تأكد من استرجاع الفئة بناءً على title
       if (storedCategory) {
         setCategory(storedCategory);
         setCurrentCategory(storedCategory);
       }
-    }, [title]);  // إعادة التحديث عند تغيير title الفئة
-      // إعادة التحديث عند تغيير title الفئة
-     // Re-run whenever currentCategory changes
+    }, [title]); 
     
 
     function handleTermClick(term) {
@@ -55,36 +44,14 @@ export default function CategoryContentViewer({ currentCategory = { terms: [] },
         }
       });
     }
-    
-      // تتغير إذا كان عنوان الفئة قد تغير
-  
 
-   // Effect to handle adding a new term from AddTerm
-  /*  useEffect(() => {
-     if (termTitle && termContent && termDescription) {
-       const newTerm = { title: termTitle, content: termContent, description: termDescription };
- 
-       // Avoid duplicate terms
-       if (!category.terms.some(term => term.title === newTerm.title)) {
-         const updatedCategory = { ...category, terms: [...category.terms, newTerm] };
-         setCategory(updatedCategory);
-         setCurrentCategory(updatedCategory);
-         setCategories(prev => prev.map(cat => (cat.title === updatedCategory.title ? updatedCategory : cat)));
-       }
-     }
-   }, [termTitle, termContent, termDescription]);
- 
-   // Effect to sync currentCategory with local state
-   useEffect(() => {
-     setCategory(prev => ({ ...currentCategory, terms: currentCategory?.terms || prev.terms }));
-   }, [currentCategory]);*/
- 
- 
- 
+   
    return (
      <>
-       <HeaderViewer />
+       
  
+        <HeaderViewer/>
+        
        <div className="back-home">
          <Link to="/homeViewer"><i className="fa-solid fa-house text-3xl cursor-pointer text-header" /></Link>
        </div>
@@ -106,7 +73,7 @@ export default function CategoryContentViewer({ currentCategory = { terms: [] },
            <div className='flex justify-center mt-10'>
            </div>
  
-           {/* Add condition for no terms */}
+           
            {category.terms.length === 0 ? (
              <div className="text-center mt-20 mb-20 text-3xl text-black font-bold">
                لا توجد بنود
@@ -168,7 +135,7 @@ export default function CategoryContentViewer({ currentCategory = { terms: [] },
                                </>
                              )}
  
-                             {/* Add term-border for triangle effect */}
+                             
                              <div
                                className="term-border"
                                style={{
@@ -262,4 +229,5 @@ export default function CategoryContentViewer({ currentCategory = { terms: [] },
      </>
    );
  }
+ 
  
