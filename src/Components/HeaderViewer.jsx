@@ -131,7 +131,7 @@ export default function HeaderViewer() {
           <button
             className="w-28 h-12 bg-header p-2 text-center text-xl text-white rounded-md mt-6 hover:opacity-90 transition-opacity"
           >
-            تأكيد
+          تأكيد
           </button>
         </form>
       </div>
