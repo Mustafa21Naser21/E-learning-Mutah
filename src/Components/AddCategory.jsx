@@ -1,30 +1,42 @@
 import Header from "./Header";
 import Swal from 'sweetalert2';
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation,Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 
 export default function AddCategory({ categories = [], setCategories }) {
-  const [categoryTitle, setCategoryTitle] = useState("");
-  const [categoryDescription, setCategoryDescription] = useState("");
-  const [termColor, setTermColor] = useState("#A3BB10"); 
-  const [categoryIndex, setCategoryIndex] = useState(null);
+  // الحالة لإدارة المدخلات
+  const [categoryTitle, setCategoryTitle] = useState(""); // عنوان الفئة
+  const [categoryDescription, setCategoryDescription] = useState(""); // وصف الفئة
+  const [termColor, setTermColor] = useState("#A3BB10"); // لون الفئة الافتراضي
+  const [categoryIndex, setCategoryIndex] = useState(null); // موقع الفئة عند التعديل
+
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { isEdit, categoryTitle: initialTitle, categoryDescription: initialDescription, index, categoryColor: initialColor } = location.state || {};
+  // استخراج القيم من الحالة إذا كان تعديل (isEdit)
+  const {
+    isEdit,
+    categoryTitle: initialTitle,
+    categoryDescription: initialDescription,
+    index,
+    categoryColor: initialColor
+  } = location.state || {};
 
+  // إعداد الحقول عند التعديل
   useEffect(() => {
     if (isEdit) {
       setCategoryTitle(initialTitle || "");
       setCategoryDescription(initialDescription || "");
-      setTermColor(initialColor || "#A3BB10"); 
+      setTermColor(initialColor || "#A3BB10");
       setCategoryIndex(index);
     }
   }, [isEdit, initialTitle, initialDescription, index, initialColor]);
 
-  function handleSaveCategory(e) {
+  //     دالة اضافة الفئة
+  function handleAddCategory(e) {
     e.preventDefault();
-  
+
+    // التحقق من الحقول المطلوبة
     if (categoryTitle.trim() === "" || categoryDescription.trim() === "") {
       Swal.fire({
         position: "center",
@@ -34,28 +46,25 @@ export default function AddCategory({ categories = [], setCategories }) {
       });
       return;
     }
-  
+
     const newCategory = {
       title: categoryTitle,
       description: categoryDescription,
       color: termColor,
     };
-  
+
     // جلب الفئات المخزنة من localStorage
     const storedCategories = JSON.parse(localStorage.getItem("categories")) || [];
-  
-    // إذا كانت في وضع تعديل، قم بتعديل الفئة في المصفوفة
+
     if (isEdit) {
+      // تعديل الفئة الحالية
       const updatedCategories = storedCategories.map((category, idx) =>
         idx === categoryIndex ? newCategory : category
       );
-  
-      // تخزين الفئات المعدلة في localStorage
-      localStorage.setItem("categories", JSON.stringify(updatedCategories));
-  
-      // تحديث الحالة في الصفحة
-      setCategories(updatedCategories);
-  
+
+      localStorage.setItem("categories", JSON.stringify(updatedCategories)); // تخزين الفئات المعدلة
+      setCategories(updatedCategories); // تحديث الحالة
+
       Swal.fire({
         position: "center",
         icon: "success",
@@ -63,13 +72,12 @@ export default function AddCategory({ categories = [], setCategories }) {
         showConfirmButton: false,
         timer: 2000,
       }).then(() => {
-        navigate("/homeadmin");
+        navigate("/homeadmin"); // العودة للصفحة الرئيسية
       });
-  
     } else {
-      // تحقق إذا كانت الفئة بنفس العنوان موجودة بالفعل
+      // تحقق من وجود الفئة بنفس العنوان مسبقًا
       const isCategoryExist = storedCategories.some((category) => category.title === categoryTitle);
-  
+
       if (isCategoryExist) {
         Swal.fire({
           position: "center",
@@ -79,16 +87,13 @@ export default function AddCategory({ categories = [], setCategories }) {
         });
         return;
       }
-  
-      // إضافة الفئة الجديدة إلى المصفوفة
+
+      // إضافة الفئة الجديدة
       storedCategories.push(newCategory);
-  
-      // تخزين الفئات الجديدة في localStorage
-      localStorage.setItem("categories", JSON.stringify(storedCategories));
-  
-      // تحديث الحالة في الصفحة
-      setCategories(storedCategories);
-  
+
+      localStorage.setItem("categories", JSON.stringify(storedCategories)); // تخزين الفئات الجديدة
+      setCategories(storedCategories); // تحديث الحالة
+
       Swal.fire({
         position: "center",
         icon: "success",
@@ -96,67 +101,79 @@ export default function AddCategory({ categories = [], setCategories }) {
         showConfirmButton: false,
         timer: 2000,
       }).then(() => {
-        navigate("/homeadmin");
+        navigate("/homeadmin"); // العودة للصفحة الرئيسية
       });
     }
   }
-  
-
-
 
   return (
     <>
       <Header />
 
-      <div className="back-home ">
-      <Link to="/homeadmin"><i className="fa-solid fa-house text-3xl cursor-pointer text-header"/></Link>
+      <div className="back-home">
+        <Link to="/homeadmin">
+          <i className="fa-solid fa-house text-3xl cursor-pointer text-header" />
+        </Link>
       </div>
-  
-      <section className="add-category-admin mt-20 mb-60 relative">
 
+      <section className="add-category-admin mt-20 mb-60 relative">
+        {/* إدخال عنوان الفئة */}
         <div className="block">
-          <label style={{ marginRight: '10%' }} className="text-4xl font-bold block mb-4" htmlFor="addCategoryTitle">عنوان الفئة:</label>
+          <label className="text-4xl font-bold block mb-4" htmlFor="addCategoryTitle">
+            عنوان الفئة:
+          </label>
           <input
             id="addCategoryTitle"
             maxLength={80}
             className="w-72 h-12 p-4 border border-input outline-slate-400 rounded-lg"
-            style={{ width: '80%', marginLeft: '10%', marginRight: '10%' }}
+            style={{ width: '80%' }}
             type="text"
             value={categoryTitle}
             onChange={(e) => setCategoryTitle(e.target.value)}
           />
         </div>
 
-
+        {/* إدخال وصف الفئة */}
         <div className="block mt-10">
-          <label style={{ marginRight: '10%' }} className="text-4xl font-bold block mb-4" htmlFor="addCategoryDescription">وصف الفئة:</label>
+          <label className="text-4xl font-bold block mb-4" htmlFor="addCategoryDescription">
+            وصف الفئة:
+          </label>
           <textarea
             id="addCategoryDescription"
             className="w-72 h-40 p-4 border border-input outline-slate-400 rounded-lg"
-            style={{ width: '80%', marginLeft: '10%', marginRight: '10%' }}
+            style={{ width: '80%' }}
             value={categoryDescription}
             onChange={(e) => setCategoryDescription(e.target.value)}
           />
         </div>
 
+        {/* إدخال لون الفئة */}
         <div className="block mt-10">
-              <label style={{ marginRight: '10%' }} className="text-4xl font-bold block mb-4 " htmlFor="addCategory"> لون الايقونة :</label>
-              <input id="addCategory" style={{ width: '10%', marginLeft: '10%', marginRight: '10%' }} className="w-72 h-12 p-4 border border-input outline-slate-400 rounded-lg  cursor-pointer" type="color"
-                value={termColor}
-                onChange={(e) => setTermColor(e.target.value)}
-              />
-            </div>
+          <label className="text-4xl font-bold block mb-4" htmlFor="addCategory">
+            لون الأيقونة:
+          </label>
+          <input
+            id="addCategory"
+            className="w-72 h-12 p-4 border border-input outline-slate-400 rounded-lg cursor-pointer"
+            style={{ width: '10%' }}
+            type="color"
+            value={termColor}
+            onChange={(e) => setTermColor(e.target.value)}
+          />
+        </div>
 
+        {/* زر اضافة */}
         <div className="btn-add-category mt-10">
           <button
-            onClick={handleSaveCategory}
+            onClick={handleAddCategory}
             className="w-60 h-14 bg-header text-white text-4xl px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
           >
             {categoryIndex !== null ? "تعديل الفئة" : "إضافة فئة"}
-            <i className="fa-solid fa-check border-2 border-white w-8 h-8 rounded-full text-xl "></i>
+            <i className="fa-solid fa-check border-2 border-white w-8 h-8 rounded-full text-xl"></i>
           </button>
         </div>
       </section>
     </>
   );
 }
+
