@@ -1,5 +1,5 @@
-import Footer from './Footer'
-import HeaderViewer from './HeaderViewer'
+import Footer from './Footer';
+import HeaderViewer from './HeaderViewer';
 import SectionPhotos from  './SectionPhotos'
 import { useEffect, useState } from "react";
 import { Link,useNavigate } from "react-router-dom";
@@ -12,7 +12,7 @@ function getCategoryClass(index) {
 export default function HomeViewer({ categories, setCategories, setCurrentCategory }) {
   
   const navigate = useNavigate();
-
+//جلب الفئات المخزنة في local storege
   useEffect(() => {
     const storedCategories = JSON.parse(localStorage.getItem("categories")) || [];
     setCategories(storedCategories);
@@ -82,6 +82,7 @@ export default function HomeViewer({ categories, setCategories, setCurrentCatego
             </div>
           </div>
 
+          {/*mobile version*/}
           <div className="add-category-mobile hidden mt-10 justify-between">
           <div className="text-center px-4 mb-20">
             <h1 className="text-3xl text-center">تقرير نماذج التعلم الالكتروني الكامل عن بعد والمدمج 2024</h1>
@@ -94,7 +95,7 @@ export default function HomeViewer({ categories, setCategories, setCurrentCatego
                      onClick={() => handleCategoryClick(category)}
                      className={`w-72 h-20 ${getCategoryClass(index)} mt-4 rounded-3xl relative text-white text-center text-lg p-2 max-lg:text-base`}
                      style={{ backgroundColor: category.color || '#A3BB10', "--dynamic-color": category.color || '#A3BB10' }}>
-                  <Link to='/categorytitleEditor' state={{ title: category.title, description: category.description }}>
+                  <Link to='/categorytitle' state={{ title: category.title, description: category.description }}>
                     {category.title}
                   </Link>
 
@@ -111,4 +112,3 @@ export default function HomeViewer({ categories, setCategories, setCurrentCatego
 }
 
   
-
