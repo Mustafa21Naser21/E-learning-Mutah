@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import HeaderViewer from './Header';
 
@@ -7,9 +7,17 @@ export default function AddTermEditor({ addTerm, currentCategory, setCurrentCate
   const location = useLocation();
   const navigate = useNavigate();
 
-  
-  const { isEdit, termTitle: initialTitle, termContent: initialContent, termDescription: initialDescription, attachments: initialAttachments, termColor: initialColor } = location.state || {};
+  // استخلاص البيانات من الحالة السابقة إذا وجدت
+  const {
+    isEdit,
+    termTitle: initialTitle,
+    termContent: initialContent,
+    termDescription: initialDescription,
+    attachments: initialAttachments,
+    termColor: initialColor
+  } = location.state || {};
 
+  // تعريف المتغيرات المحلية باستخدام useState
   const [termTitle, setTermTitle] = useState(initialTitle || "");
   const [termContent, setTermContent] = useState(initialContent || "");
   const [termDescription, setTermDescription] = useState(initialDescription || "");
@@ -18,9 +26,10 @@ export default function AddTermEditor({ addTerm, currentCategory, setCurrentCate
   const [termColor, setTermColor] = useState(initialColor || "#ffffff");
   const [attachments, setAttachments] = useState(initialAttachments || []);
 
+  // الدالة لمعالجة إضافة البند
   const handleAddTerm = (e) => {
     e.preventDefault();
-  
+
     // التحقق من القيم الفارغة
     if (termTitle.trim() === "" || termDescription.trim() === "" || termContent.trim() === "") {
       Swal.fire({
@@ -31,12 +40,12 @@ export default function AddTermEditor({ addTerm, currentCategory, setCurrentCate
       });
       return;
     }
-  
+
     // التحقق من تكرار العنوان
     const isDuplicate = currentCategory.terms.some(
       (term) => term.title.trim() === termTitle.trim() && (!isEdit || term.title !== initialTitle)
     );
-  
+
     if (isDuplicate) {
       Swal.fire({
         position: "center",
@@ -46,8 +55,8 @@ export default function AddTermEditor({ addTerm, currentCategory, setCurrentCate
       });
       return;
     }
-  
-    // إنشاء البند الجديد
+
+    // إنشاء أو تحديث البند
     const newTerm = {
       title: termTitle,
       content: termContent,
@@ -55,31 +64,23 @@ export default function AddTermEditor({ addTerm, currentCategory, setCurrentCate
       color: termColor,
       attachments,
     };
-  
-    let updatedCategory;
-    if (isEdit) {
-      // تحديث البند في نفس مكانه
-      updatedCategory = {
-        ...currentCategory,
-        terms: currentCategory.terms.map((term) =>
-          term.title === initialTitle ? newTerm : term
-        ),
-      };
-    } else {
-      // إضافة البند الجديد
-      updatedCategory = {
-        ...currentCategory,
-        terms: [...currentCategory.terms, newTerm],
-      };
-    }
-  
-    // حفظ الفئة في التخزين المحلي
+
+    const updatedCategory = isEdit
+      ? {
+          ...currentCategory,
+          terms: currentCategory.terms.map((term) =>
+            term.title === initialTitle ? newTerm : term
+          ),
+        }
+      : {
+          ...currentCategory,
+          terms: [...currentCategory.terms, newTerm],
+        };
+
+    // تحديث التخزين المحلي والحالة
     localStorage.setItem(currentCategory.title, JSON.stringify(updatedCategory));
-  
-    // تحديث الحالة
     setCurrentCategory(updatedCategory);
-  
-    // رسالة نجاح
+
     Swal.fire({
       position: "center",
       icon: "success",
@@ -96,18 +97,11 @@ export default function AddTermEditor({ addTerm, currentCategory, setCurrentCate
       });
     });
   };
-  
-  
- 
 
-  
-
-
-  function addAttached() {
+  // الدالة لإضافة مرفق جديد
+  const addAttached = () => {
     if (fileName && fileURL) {
       const newAttachment = { name: fileName, url: fileURL };
-
-      
       setAttachments([...attachments, newAttachment]);
 
       Swal.fire({
@@ -115,11 +109,11 @@ export default function AddTermEditor({ addTerm, currentCategory, setCurrentCate
         icon: "success",
         title: "تم اضافة المرفق بنجاح",
         showConfirmButton: false,
-        timer: 2000
+        timer: 2000,
       });
       document.querySelector(".add-file").style.display = 'none';
-      setFileName(""); 
-      setFileURL(""); 
+      setFileName("");
+      setFileURL("");
     } else {
       Swal.fire({
         position: "top-center",
@@ -128,99 +122,115 @@ export default function AddTermEditor({ addTerm, currentCategory, setCurrentCate
         showConfirmButton: true,
       });
     }
-  }
+  };
 
-  function showFileInput(e) {
+  // الدوال لإظهار وإخفاء مربع إدخال الملفات
+  const showFileInput = (e) => {
     e.preventDefault();
     document.querySelector(".add-file").style.display = 'block';
-  }
+  };
 
-  function hideFileInput() {
+  const hideFileInput = () => {
     document.querySelector(".add-file").style.display = 'none';
-  }
+  };
 
-  function handleFileChange(event) {
+  const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
       setFileURL(URL.createObjectURL(file)); // إنشاء رابط URL للملف للعرض
     }
-  }
+  };
 
   return (
     <>
       <HeaderViewer />
+      <div className="back-home">
+        <Link to="/homeEditor">
+          <i className="fa-solid fa-house text-3xl cursor-pointer text-header" />
+        </Link>
+      </div>
       <section>
         <div className="add-term relative mt-20">
-          <form className="" action="" onSubmit={handleAddTerm}>
-           
+          <form onSubmit={handleAddTerm}>
+            {/* إدخال عنوان البند */}
             <div className="block">
-              <label style={{ marginRight: '10%' }} className="text-4xl font-bold block mb-4 " htmlFor="addCategory">عنوان البند :</label>
-              <input id="addCategory" style={{ width: '80%', marginLeft: '10%', marginRight: '10%' }} className="w-72 h-12 p-4 border border-input outline-slate-400 rounded-lg" type="text"
-                 maxLength={150}  value={termTitle}
+              <label className="text-4xl font-bold block mb-4" htmlFor="termTitle">عنوان البند:</label>
+              <input
+                id="termTitle"
+                className="w-72 h-12 p-4 border border-input outline-slate-400 rounded-lg"
+                type="text"
+                maxLength={150}
+                value={termTitle}
                 onChange={(e) => setTermTitle(e.target.value)}
               />
             </div>
 
+            {/* إدخال محتوى البند */}
             <div className="block mt-10">
-              <label style={{ marginRight: '10%' }} className="text-4xl font-bold block mb-4 " htmlFor="addCategory">محتوى البند :</label>
-              <input id="addCategory" style={{ width: '80%', marginLeft: '10%', marginRight: '10%' }} className="w-72 h-12 p-4 border border-input outline-slate-400 rounded-lg" type="text"
+              <label className="text-4xl font-bold block mb-4" htmlFor="termContent">محتوى البند:</label>
+              <input
+                id="termContent"
+                className="w-72 h-12 p-4 border border-input outline-slate-400 rounded-lg"
+                type="text"
                 value={termContent}
                 onChange={(e) => setTermContent(e.target.value)}
               />
             </div>
 
+            {/* إدخال شرح البند */}
             <div className="block mt-10">
-              <label style={{ marginRight: '10%' }} className="text-4xl font-bold block mb-4" htmlFor="">شرح البند :</label>
-              <input style={{ width: '80%', marginLeft: '10%', marginRight: '10%' }} className="w-72 h-32 p-4 border border-input outline-slate-400 rounded-lg"
+              <label className="text-4xl font-bold block mb-4" htmlFor="termDescription">شرح البند:</label>
+              <textarea
+                id="termDescription"
+                className="w-72 h-32 p-4 border border-input outline-slate-400 rounded-lg"
                 value={termDescription}
                 onChange={(e) => setTermDescription(e.target.value)}
               />
             </div>
 
+            {/* اختيار اللون */}
             <div className="block mt-10">
-              <label style={{ marginRight: '10%' }} className="text-4xl font-bold block mb-4" htmlFor=""> النسبة المئوية :</label>
-              <input style={{ width: '10%', marginLeft: '10%', marginRight: '10%' }} className="w-72 h-12 p-4 text-center border border-input outline-slate-400 rounded-lg"
-              value={'0%'} readOnly
-              />
-            </div>
-
-            <div className="block mt-10">
-              <label style={{ marginRight: '10%' }} className="text-4xl font-bold block mb-4 " htmlFor="addCategory"> لون الايقونة :</label>
-              <input id="addCategory" style={{ width: '10%', marginLeft: '10%', marginRight: '10%' }} className="w-72 h-12 p-4 border border-input outline-slate-400 rounded-lg" type="color"
+              <label className="text-4xl font-bold block mb-4" htmlFor="termColor">لون الايقونة:</label>
+              <input
+                id="termColor"
+                className="w-72 h-12 p-4 border border-input outline-slate-400 rounded-lg"
+                type="color"
                 value={termColor}
                 onChange={(e) => setTermColor(e.target.value)}
               />
             </div>
 
+            {/* المرفقات */}
             <div className="block mt-10">
-              <label style={{ marginRight: '10%' }} className="text-4xl font-bold block mb-4 " htmlFor="addCategory">المرفقات و الروابط :</label>
-              <button onClick={showFileInput} style={{ marginRight: '10%' }} className='w-64 h-16 mt-4 font-bold border-2 border-black text-4xl px-4 py-2 rounded-lg'>
-                <i className="fa-solid fa-plus px-2 ml-4 text-white bg-header rounded-full" />اضافة مرفق
+              <label className="text-4xl font-bold block mb-4">المرفقات:</label>
+              <button onClick={showFileInput} className='w-64 h-16 mt-4 font-bold border-2 border-black text-4xl px-4 py-2 rounded-lg'>
+                <i className="fa-solid fa-plus px-2 ml-4 text-white bg-header rounded-full" /> اضافة مرفق
               </button>
             </div>
 
+            {/* زر اضافة البند */}
             <div className="btn-add-term">
               <button type="submit" className="w-60 h-14 mb-10 mt-10 bg-header border-2 border-gray-400 text-white text-4xl px-4 py-2 rounded-lg">
-              {isEdit ?"تعديل البند" : "اضافة البند"} 
-                <i className="fa-solid fa-check border-2 border-white w-8 h-8 rounded-full text-xl "></i>
+                {isEdit ? "تعديل البند" : "اضافة البند"}
+                <i className="fa-solid fa-check border-2 border-white w-8 h-8 rounded-full text-xl"></i>
               </button>
             </div>
           </form>
 
+          {/* مربع إضافة الملفات */}
           <div className="add-file bg-white hidden w-96 h-96 rounded-lg">
             <i onClick={hideFileInput} className="fa-solid fa-xmark" style={{ cursor: 'pointer', float: 'right', padding: '10px' }} />
-
             <div className="block mt-10">
-              <label style={{ marginRight: '10%' }} className="text-3xl font-bold block mb-4">اسم المرفق :</label>
-              <input style={{ width: '80%', marginLeft: '10%', marginRight: '10%' }} className="w-72 h-12 p-4 border border-input outline-slate-400 rounded-xl"
+              <label className="text-3xl font-bold block mb-4">اسم المرفق:</label>
+              <input
+                className="w-72 h-12 p-4 border border-input outline-slate-400 rounded-xl"
                 type="text"
                 value={fileName}
-                onChange={(e) => setFileName(e.target.value)} // المستخدم يدخل اسم المرفق
+                onChange={(e) => setFileName(e.target.value)}
               />
             </div>
-
             <div className="block relative mt-10">
-              <label htmlFor="file-upload" style={{ marginRight: '10%' }} className="text-3xl font-bold block mb-4 cursor-pointer">
+              <label htmlFor="file-upload" className="text-3xl font-bold block mb-4 cursor-pointer">
                 <i className="fa-solid fa-file-arrow-up" /> تحميل المرفق:
               </label>
               <input
@@ -234,11 +244,9 @@ export default function AddTermEditor({ addTerm, currentCategory, setCurrentCate
                 value={fileURL ? "تم تحميل الملف" : ""}
                 readOnly
                 className="w-72 h-20 p-4 border border-input outline-slate-400 rounded-xl"
-                style={{ width: '80%', marginLeft: '10%', marginRight: '10%' }}
               />
             </div>
-
-            <button style={{ marginRight: '25%' }} onClick={addAttached} className="w-60 h-14 mb-2 mt-14 bg-header border-2 border-gray-400 text-white text-4xl px-4 py-2 rounded-lg">
+            <button onClick={addAttached} className="w-60 h-14 mb-2 mt-14 bg-header border-2 border-gray-400 text-white text-4xl px-4 py-2 rounded-lg">
               اضافة المرفق
             </button>
           </div>
@@ -248,5 +256,6 @@ export default function AddTermEditor({ addTerm, currentCategory, setCurrentCate
   );
 }
 
+ 
 
  
