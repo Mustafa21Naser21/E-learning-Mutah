@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 export default function HeaderViewer() {
   const [profileImage, setProfileImage] = useState(null);
 
-  // استخدام useRef للتحكم في العناصر
+  
   const profileViewerRef = useRef(null);
   const changePasswordRef = useRef(null);
 
